@@ -1,5 +1,6 @@
 # Day 16 — Agent Arena (Đấu trường Agent)
 
+
 Cuộc thi 120 phút tại lớp · Track 3 · VinUniversity
 
 > **Đọc theo thứ tự:** `README.md` (trang này — bức tranh tổng thể) → [`GUIDE.md`](GUIDE.md)

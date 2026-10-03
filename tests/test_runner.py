@@ -33,6 +33,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.platform_helpers import subprocess_env
+
 from arena.briefs import load_public_briefs
 from arena.corpus import Corpus
 from arena.model import (
@@ -667,6 +669,7 @@ def test_a_gigantic_model_output_still_yields_a_scoreable_run():
         ("many real finals", "\n".join(['FINAL: {"answer": "a", "claims": []}'] * 5_000)),
         ("deep brackets", "FINAL: " + "[" * 2_000 + "]" * 2_000),
     ],
+    ids=["pseudo-prose", "pseudo-braces", "junk", "many-finals", "deep-brackets"],
 )
 def test_normalisation_is_bounded_on_pathological_output(name, text):
     """A per-turn cost, so it must stay milliseconds even on hostile
@@ -1205,8 +1208,8 @@ def test_two_processes_produce_byte_identical_traces():
     for hashseed in ("0", "999"):
         proc = subprocess.run(
             [sys.executable, "-c", DETERMINISM_SNIPPET.format(root=str(LAB_ROOT))],
-            capture_output=True, text=True, cwd=str(LAB_ROOT),
-            env={"PATH": "/usr/bin:/bin", "PYTHONHASHSEED": hashseed},
+            capture_output=True, text=True, encoding="utf-8", cwd=str(LAB_ROOT),
+            env=subprocess_env(hashseed),
         )
         assert proc.returncode == 0, proc.stderr[-2000:]
         outputs_.append(json.loads(proc.stdout))
@@ -1238,8 +1241,8 @@ def test_a_fixed_clock_makes_even_the_timing_deterministic():
 def _script(name, *args, expect=0):
     proc = subprocess.run(
         [sys.executable, f"scripts/{name}", *args],
-        capture_output=True, text=True, cwd=str(LAB_ROOT),
-        env={"PATH": "/usr/bin:/bin"},
+        capture_output=True, text=True, encoding="utf-8", cwd=str(LAB_ROOT),
+        env=subprocess_env(),
     )
     assert proc.returncode == expect, (proc.returncode, proc.stdout[-2000:], proc.stderr[-2000:])
     return proc
@@ -1320,7 +1323,7 @@ def test_run_practice_refuses_the_real_path_without_credentials():
     proc = subprocess.run(
         [sys.executable, "scripts/run_practice.py", "--model", "real", "--brief",
          "pub-01-sla-hien-hanh"],
-        capture_output=True, text=True, cwd=str(LAB_ROOT), env={"PATH": "/usr/bin:/bin"},
+        capture_output=True, text=True, encoding="utf-8", cwd=str(LAB_ROOT), env=subprocess_env(),
     )
     assert proc.returncode != 0
     combined = proc.stdout + proc.stderr

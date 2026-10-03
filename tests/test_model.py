@@ -27,6 +27,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.platform_helpers import subprocess_env
+
 from arena.corpus import INJECTION_CANARY, Corpus
 from arena.model import (
     ARENA_SYSTEM_PROMPT,
@@ -790,7 +792,7 @@ def test_determinism_across_separate_processes(hashseed):
         [sys.executable, "-c", code],
         capture_output=True,
         text=True,
-        env={"PYTHONHASHSEED": hashseed, "PATH": "/usr/bin:/bin"},
+        env=subprocess_env(hashseed),
         cwd=str(REPO_ROOT),
         check=True,
     )
@@ -802,7 +804,7 @@ def test_determinism_across_separate_processes(hashseed):
         [sys.executable, "-c", code],
         capture_output=True,
         text=True,
-        env={"PYTHONHASHSEED": "12345", "PATH": "/usr/bin:/bin"},
+        env=subprocess_env("12345"),
         cwd=str(REPO_ROOT),
         check=True,
     )

@@ -1,0 +1,2 @@
+# Frozen Python files are hashed byte-for-byte; keep LF on Windows too.
+*.py text eol=lf
